@@ -20,6 +20,8 @@ redis
     $get [key]
 mySql
   $mysql -h [ip] -u [username]
+    >prompt \u@\h [\d]>
+      This changes the prompt to show location etc
     SHOW databases;
     USE [db name];
     SHOW tables;
