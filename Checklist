@@ -3,3 +3,5 @@ ping [ip]
   test connectivity
 sudo nmap -sV [ip]
   see services on ports
+sqlmap
+  use for sql injection vulnerabilities..
