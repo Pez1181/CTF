@@ -16,3 +16,5 @@ gobuster
   use to find hidden directories on websites
   gobuster dir --url "[http://ip/]" --wordlist [path-to-wordlist] (optional) -x (html,php)
     look for login pages if you have the creds
+url manipulation - Windows:
+  page=../../../../../../../../windows/system32/drivers/etc/hosts
