@@ -1,9 +1,18 @@
 Enumeration:
+
 ping [ip]
   test connectivity
-sudo nmap -sV [ip]
-  see services on ports
+
+sudo nmap -sV -sV [ip]
+  see services/versions on ports
+
 sqlmap
   use for sql injection vulnerabilities..
     https://medium.com/@cuncis/the-ultimate-sqlmap-tutorial-master-sql-injection-and-vulnerability-assessment-4babdc978e7d
 common payloads https://www.invicti.com/blog/web-security/sql-injection-cheat-sheet/
+
+HTTP:
+gobuster
+  use to find hidden directories on websites
+  gobuster dir --url "[http://ip/]" --wordlist [path-to-wordlist] (optional) -x (html,php)
+    look for login pages if you have the creds
