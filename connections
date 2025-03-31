@@ -10,3 +10,11 @@ smb - port 445
   connect using smbclient $smbclient -L [ip]
   then try to connect to one of users $smbclient \\\\[ip]\\[user]
     some are poorly configured - no password
+redis
+  $redis-cli -h [ip] 
+    get basic enumeration with $info
+      #keyspace will show databases
+    $select[db id]
+    $keys *
+      lists all keys
+    $get [key]
