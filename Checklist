@@ -1,2 +1,5 @@
 Enumeration:
-
+ping [ip]
+  test connectivity
+sudo nmap -sV [ip]
+  see services on ports
