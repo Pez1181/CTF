@@ -5,3 +5,4 @@ sudo nmap -sV [ip]
   see services on ports
 sqlmap
   use for sql injection vulnerabilities..
+commin payloads https://www.invicti.com/blog/web-security/sql-injection-cheat-sheet/
