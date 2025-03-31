@@ -1,0 +1,12 @@
+telnet - port 23
+  connect using $telnet [ip]
+    common defaults are admin, administratot, root
+    bruteforce is possible using
+ftp - port 21
+  connect using $ftp [ip]
+    common default is anonymous - no password
+    get can download files
+smb - port 445
+  connect using smbclient $smbclient -L [ip]
+  then try to connect to one of users $smbclient \\\\[ip]\\[user]
+    some are poorly configured - no password
