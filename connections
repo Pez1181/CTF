@@ -18,3 +18,11 @@ redis
     $keys *
       lists all keys
     $get [key]
+mySql
+  $mysql -h [ip] -u [username]
+    SHOW databases;
+    USE [db name];
+    SHOW tables;
+    SELECT * FROM [table name];
+  try "root"
+  sqlmap maybe?
