@@ -1,0 +1,3 @@
+echo -e '#!/bin/bash\ncat "$@"\n/bin/md5sum "$@"' > md5sum
+chmod +x md5sum
+PATH=.:$PATH ./<file>
