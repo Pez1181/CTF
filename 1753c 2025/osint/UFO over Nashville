@@ -1,0 +1,16 @@
+In October 2020, Mark created a video using Adobe Premiere Pro, 
+which he later uploaded to Parler. The video, less than a minute long, 
+showcases a mesmerizing UFO spectacle. Within the footage, a neon sign
+welcomes visitors to a restaurant. We need to find out what they 
+are serving for 3 dollars. Oh, one more thing: We are fairly certain 
+that while creating this video, he used a file named ufo_over_nashville.mp4. 
+The flag is in a form similar to this: 1753c{osint_challenge}
+​
+1. find the video
+
+In Youtube, I searched for "UFO Nashville" and sorted results by
+date. going back 4-5 years, i found a video posted by Mark Stout. 
+
+in the video was a sign showing two restaurants: Jacks Bar B Que and
+Roberts western world. looking at both menus, only Roberts had something for
+3 dollars. Moonpie. The flag turned out to be 1753c{moon_pie}
