@@ -70,6 +70,88 @@ Grab session cookie
 
 ################################################################################
 
-ret2win
+#!/usr/local/bin/python
+import socket
+import time
 
-from pwn import *
+# Comments to add with their intended line numbers in the original script
+comments = [
+    (0, "Function to check if a string is a palindrome"),
+    (2, "Initialize result as True, assuming the string is a palindrome"),
+    (3, "Loop through half the string to compare characters"),
+    (5, "Get character from the start of the string"),
+    (6, "Get corresponding character from the end of the string"),
+    (7, "Compare characters; if they differ, mark as not a palindrome"),
+    (9, "Return whether the string is a palindrome"),
+    (10, "Prompt user for a word to check"),
+    (11, "Check if the input word is a palindrome and print result")
+]
+
+# Adjust line numbers to account for inserted comments
+adjusted_lines = []
+current_line = 0
+line_map = {0: 0}  # Maps original line to adjusted line after insertions
+for orig_line, _ in comments:
+    # Find the adjusted line number for the original line
+    adjusted_line = orig_line
+    for prev_line, _ in adjusted_lines:
+        if prev_line <= adjusted_line:
+            adjusted_line += 1
+    adjusted_lines.append((adjusted_line, orig_line))
+    line_map[orig_line] = adjusted_line
+
+# Connect to the server
+host = "74.207.229.59"
+port = 20240
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect((host, port))
+
+# Receive and print server output
+def receive_output():
+    data = b""
+    while True:
+        chunk = s.recv(4096)
+        if not chunk:
+            break
+        data += chunk
+        if b"add more? [y/N]: " in data or b"Enter a word to check if it's a palindrome: " in data:
+            break
+        time.sleep(0.1)
+    print(data.decode(errors="ignore"))
+    return data.decode(errors="ignore")
+
+# Send input to server
+def send_input(text):
+    s.send((str(text) + "\n").encode())
+    time.sleep(0.5)
+
+# Automate comment insertion
+for adjusted_line, (orig_line, comment) in enumerate(comments):
+    # Receive initial output or prompt
+    receive_output()
+    
+    # Send line number
+    send_input(adjusted_line)
+    
+    # Send comment
+    send_input(comment)
+    
+    # After the first comment, we need to confirm to add more
+    if adjusted_line < len(comments) - 1:
+        receive_output()
+        send_input("y")
+    else:
+        receive_output()
+        send_input("N")
+
+# Handle the palindrome input prompt
+receive_output()
+send_input("radar")  # Test with a palindrome
+
+# Receive final output (possibly containing the flag)
+final_output = receive_output()
+print("Final output:")
+print(final_output)
+
+# Close connection
+s.close()
